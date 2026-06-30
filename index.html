@@ -37,6 +37,53 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* ===== PRELOADER ===== */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity .6s var(--ease), visibility .6s;
+        }
+        .preloader.is-done {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .preloader__inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+        .preloader__logo {
+            height: 40px;
+            width: auto;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: preloaderLogo .7s var(--ease) forwards;
+        }
+        @keyframes preloaderLogo {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .preloader__bar {
+            width: 280px;
+            max-width: 60vw;
+            height: 4px;
+            background: #ECECEC;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .preloader__fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 100px;
+            transition: width .25s linear;
+        }
+
         /* ===== CURSOR ===== */
         .cursor {
             position: fixed;
@@ -45,26 +92,17 @@
             z-index: 9999;
         }
 
-        .cursor__dot {
+        .cursor__img {
             position: absolute;
-            width: 8px; height: 8px;
-            background: var(--text-dark);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width .3s var(--ease), height .3s var(--ease), background .3s;
+            width: 28px;
+            height: auto;
+            transform: translate(-15%, -10%) scale(1);
+            transform-origin: top left;
+            transition: transform .25s var(--ease);
+            will-change: left, top;
         }
 
-        .cursor__ring {
-            position: absolute;
-            width: 42px; height: 42px;
-            border: 1.5px solid rgba(28,43,28,.4);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width .4s var(--ease), height .4s var(--ease), opacity .3s;
-        }
-
-        body.is-hovering .cursor__dot  { width: 52px; height: 52px; background: var(--accent); }
-        body.is-hovering .cursor__ring { opacity: 0; width: 0; height: 0; }
+        body.is-hovering .cursor__img { transform: translate(-15%, -10%) scale(1.4); }
 
         /* ===== NAV ===== */
         .nav {
@@ -1263,10 +1301,19 @@
 </head>
 <body>
 
+    <!-- PRELOADER -->
+    <div class="preloader" id="preloader">
+        <div class="preloader__inner">
+            <img class="preloader__logo" src="logo.png" alt="Evoxy Design">
+            <div class="preloader__bar">
+                <div class="preloader__fill" id="preloaderFill"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- CURSOR -->
     <div class="cursor">
-        <div class="cursor__ring" id="cursorRing"></div>
-        <div class="cursor__dot"  id="cursorDot"></div>
+        <img class="cursor__img" id="cursorImg" src="cursor.png" alt="">
     </div>
 
     <!-- NAV -->
@@ -1717,22 +1764,43 @@
 
     <script async src="//www.instagram.com/embed.js"></script>
     <script>
+        /* ===== PRELOADER ===== */
+        (function () {
+            const preloader = document.getElementById('preloader');
+            const fill = document.getElementById('preloaderFill');
+            let progress = 0;
+            document.body.style.overflow = 'hidden';
+
+            const tick = setInterval(() => {
+                // avança em passos irregulares para parecer carregamento real
+                progress += Math.random() * 18 + 6;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(tick);
+                    fill.style.width = '100%';
+                    setTimeout(() => {
+                        preloader.classList.add('is-done');
+                        document.body.style.overflow = '';
+                    }, 350);
+                } else {
+                    fill.style.width = progress + '%';
+                }
+            }, 180);
+        })();
+
         /* ===== CURSOR ===== */
-        const dot  = document.getElementById('cursorDot');
-        const ring = document.getElementById('cursorRing');
-        let mx = 0, my = 0, rx = 0, ry = 0;
+        const cursorImg = document.getElementById('cursorImg');
+        let mx = 0, my = 0, cx = 0, cy = 0;
 
         document.addEventListener('mousemove', e => {
             mx = e.clientX; my = e.clientY;
-            dot.style.left = mx + 'px';
-            dot.style.top  = my + 'px';
         });
 
         (function loop() {
-            rx += (mx - rx) * .1;
-            ry += (my - ry) * .1;
-            ring.style.left = rx + 'px';
-            ring.style.top  = ry + 'px';
+            cx += (mx - cx) * .18;
+            cy += (my - cy) * .18;
+            cursorImg.style.left = cx + 'px';
+            cursorImg.style.top  = cy + 'px';
             requestAnimationFrame(loop);
         })();
 
