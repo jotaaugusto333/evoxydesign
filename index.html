@@ -1868,8 +1868,9 @@
             const flushRight = containerW - trackW;
 
             // quanto ainda se rola DEPOIS do flush, vendo o carrossel se esvaziar à direita.
-            // ajuste este valor para mais/menos "vazio" no fim do trecho.
-            const OVERSHOOT = 1000;
+            // 0 = para assim que a última imagem encosta na borda direita (nenhuma some).
+            // Aumentar este valor volta a "esvaziar" o carrossel no fim do trecho.
+            const OVERSHOOT = 0;
 
             // não clampamos por maxTranslate(): ele para de centralizar o último slide bem
             // antes disso e cortaria o overshoot. Como o translate é dirigido à mão, passar
