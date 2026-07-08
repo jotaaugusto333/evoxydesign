@@ -362,35 +362,30 @@
             width: 100vw;
             margin-left: calc(-50vw + 50%);
             overflow: hidden;
-            padding: 40px 0;
+            padding: 48px 0;
             opacity: 0;
             animation: fadeUp .9s var(--ease) .95s forwards;
         }
 
         .heroSwiper {
             width: 100%;
-            overflow: visible;
+            height: 420px;
         }
 
         /* o efeito panorama precisa de overflow visível para o 3D não ser cortado */
         .swiper-panorama { overflow: visible !important; }
 
-        /* largura do slide segue a proporção da imagem (slidesPerView: 'auto'),
-           assim nada é cortado */
         .heroSwiper .swiper-slide {
-            width: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .heroSwiper .swiper-slide img {
-            height: 370px;
-            width: auto;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
-            border-radius: 8px;
+            pointer-events: none;
         }
 
         /* ===== SCROLL INDICATOR ===== */
@@ -1240,8 +1235,8 @@
             .hero__ctas { flex-direction: column; width: 100%; gap: 12px; }
             .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
 
-            .carousel-wrap { padding: 20px 0; }
-            .heroSwiper .swiper-slide img { height: 230px; }
+            .carousel-wrap { padding: 24px 0; }
+            .heroSwiper { height: 260px; }
 
             .services { padding: 64px 20px 0; }
             .services__header { margin-bottom: 48px; }
@@ -1831,15 +1826,15 @@
             loop: false,
             watchSlidesProgress: true,
             speed: 600,
-            slidesPerView: 'auto',
+            slidesPerView: 1.5,
             spaceBetween: 10,
             autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
             panoramaEffect: { depth: 150, rotate: 45 },
             breakpoints: {
-                480:  { panoramaEffect: { rotate: 35, depth: 150 } },
-                640:  { panoramaEffect: { rotate: 30, depth: 150 } },
-                1024: { panoramaEffect: { rotate: 25, depth: 200 } },
-                1200: { panoramaEffect: { rotate: 22, depth: 250 } }
+                480:  { slidesPerView: 2, panoramaEffect: { rotate: 35, depth: 150 } },
+                640:  { slidesPerView: 3, panoramaEffect: { rotate: 30, depth: 150 } },
+                1024: { slidesPerView: 5, panoramaEffect: { rotate: 25, depth: 200 } },
+                1200: { slidesPerView: 6, panoramaEffect: { rotate: 22, depth: 250 } }
             }
         });
 
@@ -1856,25 +1851,7 @@
             heroSwiper.update();
 
             const min = heroSwiper.minTranslate();
-
-            // maxTranslate() CENTRALIZA o último slide, deixando um vazio enorme à direita.
-            // Queremos parar quando a borda direita do track encosta na borda do container.
-            const containerW = heroSwiper.width;
-
-            // virtualSize = soma real dos slides + gaps. NÃO usar wrapperEl.scrollWidth:
-            // as transforms 3D do panorama corrompem essa medida (chega a reportar a
-            // largura do container, zerando o flushRight em telas largas).
-            const trackW = heroSwiper.virtualSize;
-            const flushRight = containerW - trackW;
-
-            // quanto ainda se rola DEPOIS do flush, vendo o carrossel se esvaziar à direita.
-            // 0 = para assim que a última imagem encosta na borda direita (nenhuma some).
-            const OVERSHOOT = 0;
-
-            // não clampamos por maxTranslate(): como o translate é dirigido à mão, passar do
-            // limite do Swiper é seguro. O Math.min só impede inverter o sentido caso o track
-            // algum dia caiba inteiro na tela.
-            const max = Math.min(min, flushRight - OVERSHOOT);
+            const max = heroSwiper.maxTranslate();
             const distance = Math.abs(min - max);
 
             heroSwiper.autoplay.stop();
