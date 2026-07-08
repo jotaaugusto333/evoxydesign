@@ -358,13 +358,13 @@
         .btn-secondary:hover .arrow { transform: translateY(4px); }
 
         /* ===== CAROUSEL (Swiper panorama 3D) ===== */
+        /* sem animação de entrada: o `forwards` do fadeUp deixava um transform
+           permanente aqui, criando um bloco de contenção que interferia no 3D */
         .carousel-wrap {
             width: 100vw;
             margin-left: calc(-50vw + 50%);
             overflow: hidden;
             padding: 48px 0;
-            opacity: 0;
-            animation: fadeUp .9s var(--ease) .95s forwards;
         }
 
         .heroSwiper {
@@ -1821,14 +1821,17 @@
         const heroSwiper = new Swiper('#heroSwiper', {
             modules: [PanoramaEffect],
             effect: 'panorama',
-            centeredSlides: true,
+            // false: o 1º slide encosta na borda esquerda e o último na direita.
+            // Com `true` (como na referência) sobra meia tela vazia nas duas pontas,
+            // porque não há slides antes do primeiro nem depois do último.
+            centeredSlides: false,
             grabCursor: true,
             loop: false,
             watchSlidesProgress: true,
             speed: 600,
             slidesPerView: 1.5,
             spaceBetween: 10,
-            autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
+            // sem autoplay: o carrossel só anda com o scroll
             panoramaEffect: { depth: 150, rotate: 45 },
             breakpoints: {
                 480:  { slidesPerView: 2, panoramaEffect: { rotate: 35, depth: 150 } },
@@ -1854,8 +1857,6 @@
             const max = heroSwiper.maxTranslate();
             const distance = Math.abs(min - max);
 
-            heroSwiper.autoplay.stop();
-
             ScrollTrigger.create({
                 trigger: section,
                 start: 'top top',
@@ -1871,9 +1872,7 @@
                     heroSwiper.setTranslate(translate);
                     heroSwiper.updateSlidesProgress(translate);
                     heroSwiper.emit('progress');
-                },
-                onLeave()     { heroSwiper.autoplay.start(); },
-                onEnterBack() { heroSwiper.autoplay.stop(); }
+                }
             });
 
             // o pin acima só passa a existir agora; recalcula os demais triggers
