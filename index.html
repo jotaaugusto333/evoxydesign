@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <style>
         /* ===== RESET ===== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,7 +27,8 @@
             --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        html { scroll-behavior: smooth; }
+        /* scroll-behavior: smooth quebra o ScrollTrigger (pin/scrub).
+           O scroll suave dos links âncora é feito via JS mais abaixo. */
 
         body {
             font-family: var(--font);
@@ -94,15 +96,20 @@
 
         .cursor__img {
             position: absolute;
-            width: 28px;
-            height: auto;
-            transform: translate(-15%, -10%) scale(1);
-            transform-origin: top left;
+            display: block;
+            width: 27px;
+            height: 28px;
+            overflow: visible;
+            /* a ponta da seta fica em ~28% x / ~23% y do viewBox:
+               deslocamos por isso para ela cair exatamente sobre o ponteiro,
+               e ancoramos o transform-origin ali para o scale crescer a partir da ponta */
+            transform: translate(-28%, -23%) scale(1);
+            transform-origin: 28% 23%;
             transition: transform .25s var(--ease);
             will-change: left, top;
         }
 
-        body.is-hovering .cursor__img { transform: translate(-15%, -10%) scale(1.4); }
+        body.is-hovering .cursor__img { transform: translate(-28%, -23%) scale(1.45); }
 
         /* ===== NAV ===== */
         .nav {
@@ -350,40 +357,40 @@
 
         .btn-secondary:hover .arrow { transform: translateY(4px); }
 
-        /* ===== CAROUSEL ===== */
+        /* ===== CAROUSEL (Swiper panorama 3D) ===== */
         .carousel-wrap {
             width: 100vw;
             margin-left: calc(-50vw + 50%);
             overflow: hidden;
+            padding: 40px 0;
             opacity: 0;
             animation: fadeUp .9s var(--ease) .95s forwards;
         }
 
-        .carousel-track {
-            display: flex;
-            gap: 20px;
-            animation: scrollTrack 28s linear infinite;
-            width: max-content;
+        .heroSwiper {
+            width: 100%;
+            overflow: visible;
         }
 
-        .carousel-track:hover { animation-play-state: paused; }
+        /* o efeito panorama precisa de overflow visível para o 3D não ser cortado */
+        .swiper-panorama { overflow: visible !important; }
 
-        .carousel-track img {
-            height: 320px;
+        /* largura do slide segue a proporção da imagem (slidesPerView: 'auto'),
+           assim nada é cortado */
+        .heroSwiper .swiper-slide {
             width: auto;
-            border-radius: 0;
-            object-fit: cover;
-            flex-shrink: 0;
-            transition: transform .4s var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
         }
 
-        .carousel-track img:hover {
-            transform: scale(1.03) translateY(-6px);
-        }
-
-        @keyframes scrollTrack {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .heroSwiper .swiper-slide img {
+            height: 370px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
         }
 
         /* ===== SCROLL INDICATOR ===== */
@@ -821,16 +828,12 @@
             position: relative;
             width: 100%;
         }
+        /* o deslocamento horizontal é controlado pelo scroll (GSAP ScrollTrigger) */
         .clients__track {
             display: flex;
             gap: 20px;
             width: max-content;
-            animation: clientsScroll 36s linear infinite;
-        }
-        .clients__track:hover { animation-play-state: paused; }
-        @keyframes clientsScroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            will-change: transform;
         }
         .client-card {
             display: flex;
@@ -1237,7 +1240,8 @@
             .hero__ctas { flex-direction: column; width: 100%; gap: 12px; }
             .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
 
-            .carousel-track img { height: 200px; }
+            .carousel-wrap { padding: 20px 0; }
+            .heroSwiper .swiper-slide img { height: 230px; }
 
             .services { padding: 64px 20px 0; }
             .services__header { margin-bottom: 48px; }
@@ -1313,7 +1317,23 @@
 
     <!-- CURSOR -->
     <div class="cursor">
-        <img class="cursor__img" id="cursorImg" src="Cursor.png" alt="">
+        <svg class="cursor__img" id="cursorImg" width="27" height="28" viewBox="0 0 27 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g filter="url(#cursorShadow)">
+                <path d="M11.8924 23.7113L7.33378 7.7198C7.0984 6.89408 7.95602 6.18105 8.73584 6.55412L23.8385 13.7792C24.6416 14.1633 24.5812 15.3159 23.7425 15.6131L17.5312 17.8139C17.3056 17.8938 17.1164 18.0511 16.9978 18.2573L13.7318 23.9361C13.2908 24.7029 12.1347 24.5616 11.8924 23.7113Z" fill="#FF9933"/>
+            </g>
+            <defs>
+                <filter id="cursorShadow" x="5.29419" y="5.45239" width="21.1134" height="21.9854" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="1"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+                </filter>
+            </defs>
+        </svg>
     </div>
 
     <!-- NAV -->
@@ -1365,21 +1385,20 @@
 
         <!-- CARROSSEL DE PROJETOS -->
         <div class="carousel-wrap" id="projetos">
-            <div class="carousel-track" id="carouselTrack">
-                <!-- Imagens originais -->
-                <img src="Frame 1707478290.png" alt="Projeto Evoxy">
-                <img src="Frame 1707478291.png" alt="Projeto Evoxy">
-                <img src="Frame 1707478292.png" alt="Projeto Evoxy">
-                <img src="Frame 1707478293.png" alt="Projeto Evoxy">
-                <img src="Frame 1707478294.png" alt="Projeto Evoxy">
-                <img src="Frame 1707478296.png" alt="Projeto Evoxy">
-                <!-- Duplicadas para loop infinito -->
-                <img src="Frame 1707478290.png" alt="Projeto Evoxy" aria-hidden="true">
-                <img src="Frame 1707478291.png" alt="Projeto Evoxy" aria-hidden="true">
-                <img src="Frame 1707478292.png" alt="Projeto Evoxy" aria-hidden="true">
-                <img src="Frame 1707478293.png" alt="Projeto Evoxy" aria-hidden="true">
-                <img src="Frame 1707478294.png" alt="Projeto Evoxy" aria-hidden="true">
-                <img src="Frame 1707478296.png" alt="Projeto Evoxy" aria-hidden="true">
+            <div class="swiper heroSwiper" id="heroSwiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="Frame 1707478290.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 1707478291.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 1707478292.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 1707478293.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 1707478294.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 1707478296.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 2095586954.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 2095586955.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 2095586956.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 2095586957.png" alt="Projeto Evoxy"></div>
+                    <div class="swiper-slide"><img src="Frame 2095586958.png" alt="Projeto Evoxy"></div>
+                </div>
             </div>
         </div>
 
@@ -1761,6 +1780,148 @@
             <path d="M19.507 16.93c-.277-.139-1.638-.807-1.892-.899-.254-.092-.439-.139-.624.139-.185.277-.716.899-.878 1.084-.162.185-.323.208-.6.069-.277-.139-1.17-.431-2.228-1.374-.824-.734-1.38-1.641-1.542-1.918-.162-.277-.017-.426.122-.564.124-.124.277-.323.415-.485.139-.162.185-.277.277-.462.093-.185.047-.346-.023-.485-.069-.139-.624-1.503-.854-2.058-.225-.54-.454-.467-.624-.476l-.531-.009c-.185 0-.485.069-.739.346-.254.277-.97.948-.97 2.312s.993 2.68 1.131 2.866c.139.185 1.954 2.982 4.735 4.183.662.285 1.178.456 1.581.584.664.211 1.269.181 1.747.11.533-.08 1.638-.669 1.869-1.316.231-.647.231-1.202.162-1.316-.07-.115-.254-.185-.531-.323z" fill="#25D366"/>
         </svg>
     </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script>
+        /* ===== SWIPER — EFEITO PANORAMA (carrossel 3D da hero) ===== */
+        function PanoramaEffect({ swiper, extendParams, on }) {
+            extendParams({ panoramaEffect: { depth: 200, rotate: 30 } });
+
+            on('beforeInit', () => {
+                if (swiper.params.effect !== 'panorama') return;
+                swiper.classNames.push(`${swiper.params.containerModifierClass}panorama`);
+                swiper.classNames.push(`${swiper.params.containerModifierClass}3d`);
+                const overwrite = { watchSlidesProgress: true };
+                Object.assign(swiper.params, overwrite);
+                Object.assign(swiper.originalParams, overwrite);
+            });
+
+            on('progress', () => {
+                if (swiper.params.effect !== 'panorama') return;
+                const { depth = 200, rotate = 30 } = swiper.params.panoramaEffect;
+                const halfRad = (rotate * Math.PI) / 180 / 2;
+                const limit = 1 / (180 / rotate);
+
+                swiper.slides.forEach((slideEl, i) => {
+                    const slideProgress = slideEl.progress;
+                    const slideSize = swiper.slidesSizesGrid[i];
+                    const center = slideProgress + (swiper.params.centeredSlides ? 0 : (swiper.params.slidesPerView - 1) * 0.5);
+                    const curve = 1 - Math.cos(center * limit * Math.PI);
+                    const tx = `${(slideSize / 3) * center * curve}px`;
+                    const tz = `${((0.5 * slideSize) / Math.sin(halfRad)) * curve - depth}px`;
+                    slideEl.style.transform = `translateX(${tx}) translateZ(${tz}) rotateY(${center * rotate}deg)`;
+                });
+            });
+
+            on('setTransition', (s, duration) => {
+                if (swiper.params.effect !== 'panorama') return;
+                swiper.slides.forEach(slideEl => {
+                    slideEl.style.transitionDuration = `${duration}ms`;
+                });
+            });
+        }
+
+        const heroSwiper = new Swiper('#heroSwiper', {
+            modules: [PanoramaEffect],
+            effect: 'panorama',
+            centeredSlides: true,
+            grabCursor: true,
+            loop: false,
+            watchSlidesProgress: true,
+            speed: 600,
+            slidesPerView: 'auto',
+            spaceBetween: 10,
+            autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
+            panoramaEffect: { depth: 150, rotate: 45 },
+            breakpoints: {
+                480:  { panoramaEffect: { rotate: 35, depth: 150 } },
+                640:  { panoramaEffect: { rotate: 30, depth: 150 } },
+                1024: { panoramaEffect: { rotate: 25, depth: 200 } },
+                1200: { panoramaEffect: { rotate: 22, depth: 250 } }
+            }
+        });
+
+        /* ===== SCROLL-LINKED: o carrossel desliza para o lado conforme o scroll ===== */
+        (async function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            const el = document.querySelector('#heroSwiper');
+            const section = el.closest('section');
+            if (!section) return;
+
+            // espera o layout estabilizar antes de medir os limites de translate
+            await new Promise(r => requestAnimationFrame(r));
+            heroSwiper.update();
+
+            const min = heroSwiper.minTranslate();
+
+            // maxTranslate() CENTRALIZA o último slide, o que deixa um vazio enorme à direita.
+            // Referência: parar quando a borda direita do track encosta na borda do container.
+            const containerW = heroSwiper.width;
+            const trackW = heroSwiper.wrapperEl.scrollWidth;
+            const flushRight = containerW - trackW;
+
+            // quanto ainda se rola DEPOIS do flush, vendo o carrossel se esvaziar à direita.
+            // ajuste este valor para mais/menos "vazio" no fim do trecho.
+            const OVERSHOOT = 900;
+
+            // nunca ultrapassa o limite real do Swiper, nem inverte o sentido se o track couber na tela
+            const max = Math.min(min, Math.max(flushRight - OVERSHOOT, heroSwiper.maxTranslate()));
+            const distance = Math.abs(min - max);
+
+            heroSwiper.autoplay.stop();
+
+            ScrollTrigger.create({
+                trigger: section,
+                start: 'top top',
+                end: `+=${distance}`,
+                pin: true,
+                pinSpacing: true,
+                scrub: 1.5,
+                // a hero vem antes na página: precisa recalcular primeiro, pois o
+                // pin dela injeta espaçamento e desloca os triggers seguintes
+                refreshPriority: 1,
+                onUpdate(self) {
+                    const translate = min + self.progress * (max - min);
+                    heroSwiper.setTranslate(translate);
+                    heroSwiper.updateSlidesProgress(translate);
+                    heroSwiper.emit('progress');
+                },
+                onLeave()     { heroSwiper.autoplay.start(); },
+                onEnterBack() { heroSwiper.autoplay.stop(); }
+            });
+
+            // o pin acima só passa a existir agora; recalcula os demais triggers
+            ScrollTrigger.refresh();
+        })();
+
+        /* ===== CLIENTES: o carrossel desliza para a DIREITA conforme o scroll ===== */
+        (function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            const track = document.querySelector('.clients__track');
+            const section = document.querySelector('.clients');
+            if (!track || !section) return;
+
+            // parte de -50% (fim das cartas duplicadas) e vai até 0% => movimento para a direita.
+            // Como as cartas estão duplicadas, o trecho percorrido é sempre visualmente contínuo.
+            gsap.fromTo(track,
+                { xPercent: -50 },
+                {
+                    xPercent: 0,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top bottom',   // começa quando a seção entra pela base da tela
+                        end: 'bottom top',     // termina quando ela sai pelo topo
+                        scrub: 1
+                    }
+                }
+            );
+        })();
+    </script>
 
     <script async src="//www.instagram.com/embed.js"></script>
     <script>
