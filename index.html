@@ -1856,7 +1856,25 @@
             heroSwiper.update();
 
             const min = heroSwiper.minTranslate();
-            const max = heroSwiper.maxTranslate();
+
+            // maxTranslate() CENTRALIZA o último slide, deixando um vazio enorme à direita.
+            // Queremos parar quando a borda direita do track encosta na borda do container.
+            const containerW = heroSwiper.width;
+
+            // virtualSize = soma real dos slides + gaps. NÃO usar wrapperEl.scrollWidth:
+            // as transforms 3D do panorama corrompem essa medida (chega a reportar a
+            // largura do container, zerando o flushRight em telas largas).
+            const trackW = heroSwiper.virtualSize;
+            const flushRight = containerW - trackW;
+
+            // quanto ainda se rola DEPOIS do flush, vendo o carrossel se esvaziar à direita.
+            // 0 = para assim que a última imagem encosta na borda direita (nenhuma some).
+            const OVERSHOOT = 0;
+
+            // não clampamos por maxTranslate(): como o translate é dirigido à mão, passar do
+            // limite do Swiper é seguro. O Math.min só impede inverter o sentido caso o track
+            // algum dia caiba inteiro na tela.
+            const max = Math.min(min, flushRight - OVERSHOOT);
             const distance = Math.abs(min - max);
 
             heroSwiper.autoplay.stop();
