@@ -1229,17 +1229,20 @@
 
             .nav { padding: 14px 16px; }
 
-            .hero { padding: 110px 20px 56px; }
-            .hero__title { font-size: 30px; }
-            .hero__subtitle { font-size: 15px; margin-bottom: 36px; }
-            .hero__ctas { flex-direction: column; width: 100%; gap: 12px; }
+            /* hero compacta: precisa caber na tela para o carrossel (fixado com a hero)
+               não ficar cortado abaixo da dobra */
+            .hero { padding: 84px 20px 20px; }
+            .hero__tag { margin-bottom: 16px; }
+            .hero__title { font-size: 30px; margin-bottom: 14px; }
+            .hero__subtitle { font-size: 15px; margin-bottom: 20px; }
+            .hero__ctas { flex-direction: column; width: 100%; gap: 12px; margin-bottom: 20px; }
             .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
 
-            .carousel-wrap { padding: 24px 0; }
-            .heroSwiper { height: 260px; }
+            .carousel-wrap { padding: 16px 0; }
+            .heroSwiper { height: clamp(200px, 30vh, 260px); }
 
-            .services { padding: 64px 20px 0; }
-            .services__header { margin-bottom: 48px; }
+            .services { padding: 40px 20px 0; }
+            .services__header { margin-bottom: 32px; }
             .services__title,
             .cases__title,
             .about__title,
@@ -1257,7 +1260,7 @@
             .service-card__title { font-size: 24px; }
             .services__spacer { height: 40px; }
 
-            .cases { padding: 64px 20px; }
+            .cases { padding: 40px 20px; }
             .cases__top { flex-direction: column; gap: 20px; }
             .cases__filters {
                 width: 100%;
@@ -1268,7 +1271,7 @@
             .cases__filter { white-space: nowrap; flex-shrink: 0; }
             .cases__grid { grid-template-columns: 1fr; gap: 20px; }
 
-            .about { padding: 0 20px; }
+            .about { padding: 0 20px 40px; }
             .about__card {
                 grid-template-columns: 1fr;
                 padding: 28px 24px;
@@ -1279,15 +1282,15 @@
             .about__stats { grid-template-columns: 1fr; gap: 12px; }
             .about__stat { flex-direction: row; align-items: center; justify-content: space-between; padding: 20px; }
 
-            .testimonials { padding: 64px 20px; }
+            .testimonials { padding: 40px 20px; }
             .testimonials__grid { grid-template-columns: 1fr; gap: 20px; max-width: 400px; }
-            .testimonials__title { margin-bottom: 40px; }
+            .testimonials__title { margin-bottom: 32px; }
 
-            .clients { padding: 64px 0; }
-            .clients__head { margin-bottom: 40px; padding: 0 20px; }
+            .clients { padding: 40px 0; }
+            .clients__head { margin-bottom: 32px; padding: 0 20px; }
             .clients__title { font-size: 28px; }
 
-            .faq { padding: 64px 20px; }
+            .faq { padding: 40px 20px; }
             .faq__question { font-size: 15px; gap: 16px; padding: 22px 0; }
 
             .footer { padding: 40px 20px; }
@@ -1295,6 +1298,23 @@
             .footer__nav { gap: 16px 24px; }
 
             .whatsapp-btn { bottom: 20px; right: 20px; width: 52px; height: 52px; }
+        }
+
+        /* ===== HERO ADAPTATIVA À ALTURA DA JANELA =====
+           A hero é fixada (pin) pelo topo enquanto o carrossel corre. Se ela ficar
+           mais alta que a janela, o rodapé dela — justamente o carrossel — some
+           abaixo da dobra e nunca aparece. Em telas baixas (notebooks) encolhemos
+           os espaçamentos e a altura do carrossel para tudo caber.
+           O min-width evita mexer nas regras de mobile acima. */
+        @media (min-width: 641px) and (max-height: 1000px) {
+            .hero { padding-top: 104px; padding-bottom: 32px; }
+            .hero__tag { margin-bottom: 20px; }
+            .hero__title { margin-bottom: 16px; }
+            .hero__subtitle { margin-bottom: 28px; }
+            .hero__ctas { margin-bottom: 32px; }
+
+            .carousel-wrap { padding: 24px 0; }
+            .heroSwiper { height: clamp(220px, 34vh, 420px); }
         }
     </style>
 </head>
@@ -1358,8 +1378,7 @@
         <p class="hero__tag">Design Estratégico para Negócios de Beleza</p>
 
         <h1 class="hero__title">
-            Seu negócio merece presença,<br>
-            consistência e <em>estratégia visual.</em>
+            Seu negócio merece presença, consistência e <em>estratégia visual.</em>
         </h1>
 
         <p class="hero__subtitle">
@@ -1633,6 +1652,27 @@
                         <p class="client-card__handle">@ecosmeticsoficial</p>
                     </div>
                 </div>
+                <div class="client-card">
+                    <img class="client-card__photo" src="yvenon.png" alt="Yvenon">
+                    <div class="client-card__info">
+                        <p class="client-card__name">Yvenon</p>
+                        <p class="client-card__handle">@yvenon.br</p>
+                    </div>
+                </div>
+                <div class="client-card">
+                    <img class="client-card__photo" src="joyce borges.png" alt="Joyce Borges">
+                    <div class="client-card__info">
+                        <p class="client-card__name">Joyce Borges</p>
+                        <p class="client-card__handle">@joyceborgess</p>
+                    </div>
+                </div>
+                <div class="client-card">
+                    <img class="client-card__photo" src="sidi dias.png" alt="Sidi Dias">
+                    <div class="client-card__info">
+                        <p class="client-card__name">Sidi Dias</p>
+                        <p class="client-card__handle">@sididiasbeauty</p>
+                    </div>
+                </div>
 
                 <!-- Duplicadas para loop infinito (não editar — espelham as de cima) -->
                 <div class="client-card" aria-hidden="true">
@@ -1658,6 +1698,18 @@
                 <div class="client-card" aria-hidden="true">
                     <img class="client-card__photo" src="cliente-ecosmetics.png" alt="">
                     <div class="client-card__info"><p class="client-card__name">Ecosmetics</p><p class="client-card__handle">@ecosmeticsoficial</p></div>
+                </div>
+                <div class="client-card" aria-hidden="true">
+                    <img class="client-card__photo" src="yvenon.png" alt="">
+                    <div class="client-card__info"><p class="client-card__name">Yvenon</p><p class="client-card__handle">@yvenon.br</p></div>
+                </div>
+                <div class="client-card" aria-hidden="true">
+                    <img class="client-card__photo" src="joyce borges.png" alt="">
+                    <div class="client-card__info"><p class="client-card__name">Joyce Borges</p><p class="client-card__handle">@joyceborgess</p></div>
+                </div>
+                <div class="client-card" aria-hidden="true">
+                    <img class="client-card__photo" src="sidi dias.png" alt="">
+                    <div class="client-card__info"><p class="client-card__name">Sidi Dias</p><p class="client-card__handle">@sididiasbeauty</p></div>
                 </div>
             </div>
         </div>
